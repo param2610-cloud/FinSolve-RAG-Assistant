@@ -13,3 +13,6 @@ wheels/
 resources/vectorstore
 .env
 .github/prompts/
+
+# Vercel
+.vercel

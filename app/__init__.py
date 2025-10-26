@@ -49,28 +49,44 @@ def create_app():
     def health():
         from flask import jsonify
         from datetime import datetime
-        from app.utils.rag_engine import vector_store
-        from app.utils.query_processor import query_processor
-        from app.utils.hr_helper import hr_helper
+        
+        services_status = {}
+        try:
+            from app.utils.rag_engine import vector_store
+            services_status["vector_store"] = vector_store is not None
+        except ImportError:
+            services_status["vector_store"] = False
+        
+        try:
+            from app.utils.query_processor import query_processor
+            services_status["query_processor"] = query_processor.nlp is not None
+        except ImportError:
+            services_status["query_processor"] = False
+        
+        try:
+            from app.utils.hr_helper import hr_helper
+            services_status["hr_data"] = hr_helper.df is not None
+        except ImportError:
+            services_status["hr_data"] = False
         
         return jsonify({
             "status": "healthy",
             "timestamp": datetime.now().isoformat(),
-            "services": {
-                "vector_store": vector_store is not None,
-                "query_processor": query_processor.nlp is not None,
-                "hr_data": hr_helper.df is not None
-            }
+            "services": services_status
         })
     
     # initialize resources before first request
     @app.before_request
     def init_resources():
         if not hasattr(app, '_initialized'):
-            from app.utils.rag_engine import initialize_vector_store
-            
-            initialize_vector_store()
-            app._initialized = True
+            try:
+                from app.utils.rag_engine import initialize_vector_store
+                initialize_vector_store()
+                app._initialized = True
+            except ImportError:
+                # Skip initialization if modules are not available
+                # This can happen during cold starts on serverless platforms
+                pass
     
     
     return app

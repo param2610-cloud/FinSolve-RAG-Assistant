@@ -1,0 +1,48 @@
+# Ignore local files
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Python config (use requirements.txt instead)
+pyproject.toml
+pyproject.toml.bak
+poetry.lock
+Pipfile
+Pipfile.lock
+
+# Data and database files
+database/
+data/
+resources/database/
+resources/data/
+docs_material/
+
+# Development files
+.env
+.env.local
+*.log
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
