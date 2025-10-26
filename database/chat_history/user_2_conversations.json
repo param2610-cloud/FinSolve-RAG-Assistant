@@ -1,0 +1,29 @@
+{
+  "4667730b-caa2-482d-b81d-a810ef0d8852": {
+    "title": "what is the q1 marketing report?",
+    "messages": [
+      {
+        "role": "user",
+        "content": "what is the q1 marketing report?",
+        "timestamp": "2025-10-26T12:37:13.682Z"
+      },
+      {
+        "role": "assistant",
+        "content": "**Document Search Results**\n================================\n\nUnfortunately, the provided context does not contain any information about the Q1 marketing report. The search results are limited to the employee handbook and the engineering master document.\n\n**Possible Reasons**\n--------------------\n\n* The Q1 marketing report might be stored in a different document or department.\n* The report might not be publicly accessible or might require specific permissions to view.\n\n**Related Information**\n----------------------\n\n* The employee handbook provides information about performance reviews and feedback, but it does not mention marketing reports.\n* The engineering master document focuses on monitoring and maintenance strategies, but it does not discuss marketing reports.\n\n**Recommendation**\n------------------\n\n* Check the company's intranet or marketing department for the Q1 marketing report.\n* If the report is not publicly accessible, consider reaching out to the marketing team or HR department for more information.\n\n**Sources**\n------------\n\n* data/general/employee_handbook.md\n* data/engineering/engineering_master_doc.md",
+        "timestamp": "2025-10-26T12:37:15.377Z"
+      },
+      {
+        "role": "user",
+        "content": "what is the code review process?",
+        "timestamp": "2025-10-26T12:37:46.765Z"
+      },
+      {
+        "role": "assistant",
+        "content": "**Code Review Process**\n=====================\n\nBased on the provided context, the code review process is as follows:\n\n### Requirements\n\n* Pull requests require at least two approvals:\n  * One from a peer engineer\n  * One from a senior engineer or technical lead\n* Automated checks must pass before code review:\n  * Linting and style validation\n  * Unit test coverage (minimum 85%)\n  * No security vulnerabilities (via Snyk)\n\n### Review Guidelines\n\n* Focus on:\n  * Correctness\n  * Performance\n  * Security\n  * Maintainability\n  * Test coverage\n\n### Testing Process\n\nAutomated tests run in the following sequence:\n\n* Unit tests\n\n**Source:** data/engineering/engineering_master_doc.md, section 4.2.4 Code Review Process.",
+        "timestamp": "2025-10-26T12:37:48.191Z"
+      }
+    ],
+    "timestamp": "2025-10-26T18:07:48.194101",
+    "last_updated": "2025-10-26T18:07:48.194124"
+  }
+}

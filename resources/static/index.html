@@ -1,0 +1,1824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinSolve RAG Assistant</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #343541;
+            color: #ececf1;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* Login Page */
+        .login-container {
+            max-width: 400px;
+            margin: 10vh auto;
+            padding: 2rem;
+            background: #444654;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+        }
+        
+        .login-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #ececf1;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            background: #40414f;
+            border: 1px solid #565869;
+            border-radius: 8px;
+            color: #ececf1;
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #10a37f;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: #10a37f;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            background: #0d8f6c;
+            transform: translateY(-1px);
+        }
+        
+        .demo-users {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #343541;
+            border-radius: 8px;
+        }
+        
+        .demo-users h3 {
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+            color: #ececf1;
+        }
+        
+        .demo-user {
+            padding: 0.75rem;
+            background: #40414f;
+            border: 1px solid #565869;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .demo-user:hover {
+            background: #52526f;
+            border-color: #10a37f;
+            transform: translateX(4px);
+        }
+        
+        .demo-user-role {
+            background: #10a37f;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+        
+        .error {
+            color: #ff6b6b;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        /* Chat Interface */
+        .chat-container {
+            display: none;
+            height: 100vh;
+        }
+        
+        .chat-container.active {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            grid-template-rows: 1fr;
+        }
+        
+        .chat-header {
+            background: #343541;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #444654;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background: #202123;
+            border-right: 1px solid #2a2b32;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .sidebar-header {
+            padding: 0.75rem;
+            border-bottom: 1px solid #2a2b32;
+        }
+        
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+        
+        .sidebar-footer {
+            padding: 0.75rem;
+            border-top: 1px solid #2a2b32;
+        }
+        
+        .profile-button {
+            width: 100%;
+            padding: 0.75rem;
+            background: #2a2b32;
+            border: 1px solid #40414f;
+            border-radius: 8px;
+            color: #ececf1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.2s;
+        }
+        
+        .profile-button:hover {
+            background: #40414f;
+        }
+        
+        .profile-avatar-small {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #10a37f 0%, #0d8f6c 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .profile-info {
+            flex: 1;
+            text-align: left;
+            overflow: hidden;
+        }
+        
+        .profile-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .profile-role {
+            font-size: 0.75rem;
+            color: #8e8ea0;
+        }
+        
+        .profile-menu {
+            display: none;
+            position: absolute;
+            bottom: 70px;
+            left: 10px;
+            width: 260px;
+            background: #2a2b32;
+            border: 1px solid #40414f;
+            border-radius: 8px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+            z-index: 100;
+        }
+        
+        .profile-menu.active {
+            display: block;
+        }
+        
+        .profile-menu-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid #40414f;
+        }
+        
+        .profile-menu-item:last-child {
+            border-bottom: none;
+        }
+        
+        .profile-menu-item:hover {
+            background: #40414f;
+        }
+        
+        .profile-menu-item.danger:hover {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .conversation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .conversation-item {
+            padding: 0.75rem;
+            background: #2a2b32;
+            border: 1px solid #40414f;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .conversation-item:hover {
+            background: #40414f;
+            border-color: #10a37f;
+        }
+        
+        .conversation-item.active {
+            background: #10a37f;
+            border-color: #10a37f;
+        }
+        
+        .conversation-title {
+            color: #ececf1;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .conversation-item.active .conversation-title {
+            color: white;
+            font-weight: 600;
+        }
+        
+        .conversation-date {
+            color: #8e8ea0;
+            font-size: 0.75rem;
+        }
+        
+        .conversation-item.active .conversation-date {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .sidebar-empty {
+            text-align: center;
+            color: #8e8ea0;
+            padding: 2rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .chat-main {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .chat-main.welcome-state {
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .chat-main.welcome-state .chat-header,
+        .chat-main.welcome-state .chat-messages {
+            display: none;
+        }
+        
+        .chat-main.welcome-state .chat-input-container {
+            position: static;
+            max-width: 700px;
+            width: 100%;
+            padding: 2rem;
+            background: transparent;
+            border-top: none;
+        }
+        
+        .welcome-message {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .welcome-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ececf1;
+            margin-bottom: 0.5rem;
+        }
+        
+        .welcome-subtitle {
+            font-size: 1rem;
+            color: #8e8ea0;
+        }
+        
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50vh);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .chat-main.animating .chat-input-container {
+            animation: slideDown 0.5s ease-out;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #10a37f 0%, #0d8f6c 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .btn-logout {
+            padding: 0.5rem 1rem;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .btn-new-chat {
+            padding: 0.5rem 1rem;
+            background: #10a37f;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-right: 0.5rem;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+        
+        .message {
+            display: flex;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid #444654;
+            gap: 1rem;
+        }
+        
+        .message.user {
+            background: #343541;
+        }
+        
+        .message.assistant {
+            background: #444654;
+        }
+        
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        
+        .message-avatar.user {
+            background: #10a37f;
+        }
+        
+        .message-avatar.assistant {
+            background: #5436DA;
+        }
+        
+        .message-content {
+            flex: 1;
+            line-height: 1.7;
+            max-width: 800px;
+        }
+        
+        .thinking {
+            color: #8e8ea0;
+            font-style: italic;
+            margin: 0.5rem 0;
+        }
+        
+        .chat-input-container {
+            padding: 1.5rem 2rem;
+            background: #343541;
+            border-top: 1px solid #444654;
+        }
+        
+        .chat-input-wrapper {
+            display: flex;
+            gap: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 1rem;
+            background: #40414f;
+            border: 1px solid #565869;
+            border-radius: 12px;
+            color: #ececf1;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: #10a37f;
+        }
+        
+        .btn-send {
+            padding: 1rem 2rem;
+            background: #10a37f;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-send:hover {
+            background: #0d8f6c;
+        }
+        
+        .btn-send:disabled {
+            background: #565869;
+            cursor: not-allowed;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: #2a2b32;
+        }
+        
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid #565869;
+        }
+        
+        th {
+            background: #40414f;
+            font-weight: 600;
+        }
+        
+        .sources {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #565869;
+        }
+        
+        .sources h4 {
+            margin-bottom: 0.5rem;
+            color: #10a37f;
+        }
+        
+        .source-item {
+            padding: 0.5rem;
+            margin: 0.25rem 0;
+            background: #40414f;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        /* HR Data Table Styles */
+        .hr-data-container {
+            margin: 1rem 0;
+            background: #2a2b32;
+            border-radius: 8px;
+            padding: 1rem;
+            overflow: hidden;
+        }
+        
+        .hr-data-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #10a37f;
+        }
+        
+        .hr-data-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #10a37f;
+        }
+        
+        .export-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #10a37f;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .export-btn:hover {
+            background: #0d8c6a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 163, 127, 0.3);
+        }
+        
+        .export-btn:active {
+            transform: translateY(0);
+        }
+        
+        .hr-table-wrapper {
+            overflow-x: auto;
+            border-radius: 6px;
+            border: 1px solid #565869;
+        }
+        
+        .hr-data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        
+        .hr-data-table thead {
+            background: #40414f;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .hr-data-table th {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #ececf1;
+            border-bottom: 2px solid #10a37f;
+            white-space: nowrap;
+        }
+        
+        .hr-data-table tbody tr {
+            border-bottom: 1px solid #565869;
+            transition: background 0.2s;
+        }
+        
+        .hr-data-table tbody tr:hover {
+            background: #40414f;
+        }
+        
+        .hr-data-table tbody tr:last-child {
+            border-bottom: none;
+        }
+        
+        .hr-data-table td {
+            padding: 0.75rem 1rem;
+            color: #d1d5db;
+        }
+        
+        .hr-data-table td:first-child {
+            font-weight: 500;
+            color: #ececf1;
+        }
+        
+        .salary-cell {
+            font-weight: 600;
+            color: #10a37f;
+        }
+        
+        .hr-row-number {
+            color: #9ca3af;
+            font-size: 0.85rem;
+            padding-right: 0.5rem;
+            text-align: center;
+            width: 40px;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #2a2b32;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #565869;
+            border-radius: 4px;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: #444654;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: #ececf1;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            line-height: 1;
+        }
+        
+        .modal-close:hover {
+            color: #ff6b6b;
+        }
+        
+        .success-message {
+            background: #10a37f;
+            color: white;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        .success-message.active {
+            display: block;
+        }
+        
+        /* Profile Modal */
+        .profile-details {
+            padding: 1rem 0;
+        }
+        
+        .profile-detail-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #565869;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .profile-detail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .profile-detail-label {
+            color: #8e8ea0;
+            font-size: 0.9rem;
+        }
+        
+        .profile-detail-value {
+            color: #ececf1;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <h1 class="login-title">🔍 FinSolve RAG Assistant</h1>
+        <form id="loginForm">
+            <div class="form-group">
+                <label>📧 Email</label>
+                <input type="email" id="email" placeholder="user@finsolve.com" required>
+            </div>
+            <div class="form-group">
+                <label>🔒 Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
+            </div>
+            <button type="submit" class="btn">🚀 Login</button>
+            <div id="loginError" class="error"></div>
+        </form>
+        
+        <div class="demo-users">
+            <h3>👥 Demo Users (Click to auto-fill)</h3>
+            <div id="demoUsersList"></div>
+        </div>
+        <p style="margin-top: 1rem; text-align: center; color: #8e8ea0; font-size: 0.9rem;">
+            💡 Demo Password: password
+        </p>
+    </div>
+    
+    <!-- Chat Interface -->
+    <div id="chatPage" class="chat-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <button class="btn" onclick="newChat()" style="width: 100%; padding: 0.75rem; font-size: 0.9rem;">
+                    ➕ New Chat
+                </button>
+            </div>
+            <div class="sidebar-content">
+                <div id="conversationList" class="conversation-list"></div>
+            </div>
+            <div class="sidebar-footer">
+                <button class="profile-button" onclick="toggleProfileMenu()">
+                    <div class="profile-avatar-small" id="sidebarAvatar"></div>
+                    <div class="profile-info">
+                        <div class="profile-name" id="sidebarUserName"></div>
+                        <div class="profile-role" id="sidebarUserRole"></div>
+                    </div>
+                    <span style="font-size: 1.2rem;">⋯</span>
+                </button>
+                <div id="profileMenu" class="profile-menu">
+                    <div class="profile-menu-item" onclick="showProfileModal()">
+                        <span>👤</span>
+                        <span>My Profile</span>
+                    </div>
+                    <div class="profile-menu-item" id="addUserMenuItem" onclick="showAddUserModal(); toggleProfileMenu();" style="display: none;">
+                        <span>➕</span>
+                        <span>Add User</span>
+                    </div>
+                    <div class="profile-menu-item" id="uploadDocMenuItem" onclick="showUploadDocModal(); toggleProfileMenu();" style="display: none;">
+                        <span>📄</span>
+                        <span>Upload Document</span>
+                    </div>
+                    <div class="profile-menu-item danger" onclick="logout()">
+                        <span>🚪</span>
+                        <span>Log out</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Chat Area -->
+        <div class="chat-main welcome-state" id="chatMain">
+            <div class="chat-header">
+                <div style="font-weight: 600; font-size: 1.1rem; color: #ececf1;">
+                    💬 FinSolve RAG Assistant
+                </div>
+            </div>
+            <div class="chat-messages" id="chatMessages"></div>
+            
+            <div class="chat-input-container" id="chatInputContainer">
+                <div class="welcome-message" id="welcomeMessage">
+                    <div class="welcome-title">💬 FinSolve RAG Assistant</div>
+                    <div class="welcome-subtitle">Ask me anything about the company</div>
+                </div>
+                <div class="chat-input-wrapper">
+                    <input 
+                        type="text" 
+                        class="chat-input" 
+                        id="chatInput" 
+                        placeholder="Ask me anything about FinSolve..."
+                        onkeypress="handleKeyPress(event)"
+                    >
+                    <button class="btn-send" id="sendBtn" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add User Modal -->
+    <div id="addUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">👤 Add New User</h2>
+                <button class="modal-close" onclick="closeAddUserModal()">×</button>
+            </div>
+            <div id="addUserSuccess" class="success-message"></div>
+            <form id="addUserForm" onsubmit="handleAddUser(event)">
+                <div class="form-group">
+                    <label>👤 Full Name</label>
+                    <input type="text" id="newUserName" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label>📧 Email</label>
+                    <input type="email" id="newUserEmail" placeholder="john.doe@finsolve.com" required>
+                </div>
+                <div class="form-group">
+                    <label>🔒 Password</label>
+                    <input type="password" id="newUserPassword" placeholder="Enter password" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label>🎭 Role</label>
+                    <select id="newUserRole" required style="width: 100%; padding: 0.75rem; background: #40414f; border: 1px solid #565869; border-radius: 8px; color: #ececf1; font-size: 1rem;">
+                        <option value="">Select a role</option>
+                        <option value="manager">Manager</option>
+                        <option value="hr_specialist">HR Specialist</option>
+                        <option value="employee">Employee</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn" id="addUserSubmitBtn">✅ Create User</button>
+                <div id="addUserError" class="error"></div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">👤 My Profile</h2>
+                <button class="modal-close" onclick="closeProfileModal()">×</button>
+            </div>
+            <div class="profile-details">
+                <div class="profile-detail-item">
+                    <span class="profile-detail-label">Name</span>
+                    <span class="profile-detail-value" id="profileName"></span>
+                </div>
+                <div class="profile-detail-item">
+                    <span class="profile-detail-label">Email</span>
+                    <span class="profile-detail-value" id="profileEmail"></span>
+                </div>
+                <div class="profile-detail-item">
+                    <span class="profile-detail-label">Role</span>
+                    <span class="profile-detail-value" id="profileRole"></span>
+                </div>
+                <div class="profile-detail-item">
+                    <span class="profile-detail-label">User ID</span>
+                    <span class="profile-detail-value" id="profileId"></span>
+                </div>
+            </div>
+            <button class="btn" onclick="closeProfileModal()" style="margin-top: 1rem;">Close</button>
+        </div>
+    </div>
+    
+    <!-- Upload Document Modal -->
+    <div id="uploadDocModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">📄 Upload Document</h2>
+                <button class="modal-close" onclick="closeUploadDocModal()">×</button>
+            </div>
+            <div id="uploadDocSuccess" class="success-message"></div>
+            <form id="uploadDocForm" onsubmit="handleUploadDoc(event)">
+                <div class="form-group">
+                    <label>📁 Department</label>
+                    <select id="docDepartment" required style="width: 100%; padding: 0.75rem; background: #40414f; border: 1px solid #565869; border-radius: 8px; color: #ececf1; font-size: 1rem;">
+                        <option value="">Select department</option>
+                        <option value="finance">Finance</option>
+                        <option value="hr">HR</option>
+                        <option value="engineering">Engineering</option>
+                        <option value="marketing">Marketing</option>
+                        <option value="general">General</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>📄 Document File (.md or .txt)</label>
+                    <input type="file" id="docFile" accept=".md,.txt" required style="width: 100%; padding: 0.75rem; background: #40414f; border: 1px solid #565869; border-radius: 8px; color: #ececf1; font-size: 1rem;">
+                </div>
+                <div style="background: #2a2b32; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <p style="font-size: 0.85rem; color: #8e8ea0; margin-bottom: 0.5rem;">📝 Document Guidelines:</p>
+                    <ul style="font-size: 0.85rem; color: #8e8ea0; margin-left: 1.5rem;">
+                        <li>Only .md (Markdown) or .txt files allowed</li>
+                        <li>Document will be processed and added to RAG</li>
+                        <li>Choose appropriate department for access control</li>
+                        <li>File must have unique name in department</li>
+                    </ul>
+                </div>
+                <button type="submit" class="btn" id="uploadDocSubmitBtn">📤 Upload Document</button>
+                <div id="uploadDocError" class="error"></div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        let authToken = null;
+        let currentUser = null;
+        let conversationId = null;
+        let isProcessing = false;
+        let conversations = [];
+        let currentMessages = [];
+        
+        const API_BASE = '/api';  // Use relative URL to work on any IP/hostname
+        
+        // Load demo users
+        async function loadDemoUsers() {
+            try {
+                const response = await fetch(`${API_BASE}/users`);
+                const data = await response.json();
+                const container = document.getElementById('demoUsersList');
+                
+                data.users.forEach(user => {
+                    const div = document.createElement('div');
+                    div.className = 'demo-user';
+                    div.innerHTML = `
+                        <span>${user.name}</span>
+                        <span class="demo-user-role">${user.role}</span>
+                    `;
+                    div.onclick = () => {
+                        document.getElementById('email').value = user.email;
+                        document.getElementById('password').value = 'password';
+                    };
+                    container.appendChild(div);
+                });
+            } catch (error) {
+                console.error('Failed to load demo users:', error);
+            }
+        }
+        
+        // Login
+        document.getElementById('loginForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({email, password})
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    errorDiv.textContent = error.error || 'Login failed';
+                    return;
+                }
+                
+                const data = await response.json();
+                authToken = data.token;
+                currentUser = data.user;
+                
+                // Show chat interface
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('chatPage').classList.add('active');
+                
+                // Update user info in sidebar
+                document.getElementById('sidebarAvatar').textContent = currentUser.name[0];
+                document.getElementById('sidebarUserName').textContent = currentUser.name;
+                document.getElementById('sidebarUserRole').textContent = currentUser.role;
+                
+                // Show Add User and Upload Document menu items if manager
+                if (currentUser.role === 'manager' || currentUser.role === 'Manager') {
+                    document.getElementById('addUserMenuItem').style.display = 'flex';
+                    document.getElementById('uploadDocMenuItem').style.display = 'flex';
+                }
+                
+                // Create new conversation
+                await createNewConversation();
+                
+                // Load conversation history
+                await loadConversations();
+                
+            } catch (error) {
+                errorDiv.textContent = 'Connection error. Please try again.';
+                console.error('Login error:', error);
+            }
+        };
+        
+        // Create new conversation
+        async function createNewConversation() {
+            try {
+                const response = await fetch(`${API_BASE}/conversations`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                conversationId = data.conversation_id;
+            } catch (error) {
+                console.error('Failed to create conversation:', error);
+            }
+        }
+        
+        // Load conversations
+        async function loadConversations() {
+            try {
+                const response = await fetch(`${API_BASE}/conversations`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (!response.ok) return;
+                
+                const data = await response.json();
+                conversations = data.conversations || [];
+                
+                renderConversations();
+            } catch (error) {
+                console.error('Failed to load conversations:', error);
+            }
+        }
+        
+        // Render conversations in sidebar
+        function renderConversations() {
+            const listContainer = document.getElementById('conversationList');
+            
+            if (conversations.length === 0) {
+                listContainer.innerHTML = '<div class="sidebar-empty">No conversations yet.<br>Start chatting!</div>';
+                return;
+            }
+            
+            listContainer.innerHTML = '';
+            
+            conversations.forEach(conv => {
+                const item = document.createElement('div');
+                item.className = 'conversation-item';
+                if (conv.id === conversationId) {
+                    item.classList.add('active');
+                }
+                
+                const date = new Date(conv.last_updated);
+                const dateStr = date.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                item.innerHTML = `
+                    <div class="conversation-title">${conv.title}</div>
+                    <div class="conversation-date">${dateStr}</div>
+                `;
+                
+                item.onclick = () => loadConversation(conv.id);
+                
+                listContainer.appendChild(item);
+            });
+        }
+        
+        // Load a specific conversation
+        async function loadConversation(convId) {
+            try {
+                const response = await fetch(`${API_BASE}/conversations/${convId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (!response.ok) return;
+                
+                const data = await response.json();
+                const conversation = data.conversation;
+                
+                conversationId = convId;
+                currentMessages = conversation.messages || [];
+                
+                // Remove welcome state when loading conversation
+                const chatMain = document.getElementById('chatMain');
+                if (currentMessages.length > 0) {
+                    chatMain.classList.remove('welcome-state');
+                    const welcomeMsg = document.getElementById('welcomeMessage');
+                    if (welcomeMsg) {
+                        welcomeMsg.style.display = 'none';
+                    }
+                }
+                
+                // Clear and reload messages
+                document.getElementById('chatMessages').innerHTML = '';
+                
+                currentMessages.forEach(msg => {
+                    if (msg.role === 'user') {
+                        addMessage('user', msg.content);
+                    } else if (msg.role === 'assistant') {
+                        if (msg.type === 'csv' && msg.data) {
+                            const tableHtml = `<h4>${msg.status || 'HR Data Results'}</h4>` + 
+                                createTable(msg.data, msg.columns || Object.keys(msg.data[0] || {}));
+                            addMessage('assistant', tableHtml, 'table');
+                        } else {
+                            // Parse markdown content when loading from history
+                            const parsedContent = marked.parse(msg.content);
+                            addMessage('assistant', parsedContent, 'markdown');
+                        }
+                    }
+                });
+                
+                renderConversations();
+                
+            } catch (error) {
+                console.error('Failed to load conversation:', error);
+            }
+        }
+        
+        // Save current conversation
+        async function saveCurrentConversation() {
+            if (!conversationId || currentMessages.length === 0) return;
+            
+            try {
+                await fetch(`${API_BASE}/conversations/${conversationId}/save`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        messages: currentMessages
+                    })
+                });
+                
+                await loadConversations();
+            } catch (error) {
+                console.error('Failed to save conversation:', error);
+            }
+        }
+        
+        // New chat
+        async function newChat() {
+            // Save current conversation if it has messages
+            if (currentMessages.length > 0) {
+                await saveCurrentConversation();
+            }
+            
+            document.getElementById('chatMessages').innerHTML = '';
+            currentMessages = [];
+            await createNewConversation();
+            renderConversations();
+            
+            // Restore welcome state
+            const chatMain = document.getElementById('chatMain');
+            chatMain.classList.add('welcome-state');
+            chatMain.classList.remove('animating');
+            
+            const welcomeMsg = document.getElementById('welcomeMessage');
+            if (welcomeMsg) {
+                welcomeMsg.style.display = 'block';
+            }
+        }
+        
+        // Logout
+        function logout() {
+            authToken = null;
+            currentUser = null;
+            conversationId = null;
+            conversations = [];
+            currentMessages = [];
+            document.getElementById('loginPage').style.display = 'block';
+            document.getElementById('chatPage').classList.remove('active');
+            document.getElementById('chatMessages').innerHTML = '';
+            document.getElementById('conversationList').innerHTML = '';
+            document.getElementById('loginError').textContent = '';
+        }
+        
+        // Handle key press
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !isProcessing) {
+                sendMessage();
+            }
+        }
+        
+        // Add message to UI
+        function addMessage(role, content, type = 'text') {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            
+            const avatar = role === 'user' ? '👤' : '🤖';
+            const avatarClass = role === 'user' ? 'user' : 'assistant';
+            
+            if (type === 'thinking') {
+                messageDiv.innerHTML = `
+                    <div class="message-avatar ${avatarClass}">${avatar}</div>
+                    <div class="message-content thinking">${content}</div>
+                `;
+            } else if (type === 'table') {
+                messageDiv.innerHTML = `
+                    <div class="message-avatar ${avatarClass}">${avatar}</div>
+                    <div class="message-content">${content}</div>
+                `;
+            } else if (type === 'markdown') {
+                // Content is already parsed markdown HTML
+                messageDiv.innerHTML = `
+                    <div class="message-avatar ${avatarClass}">${avatar}</div>
+                    <div class="message-content">${content}</div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="message-avatar ${avatarClass}">${avatar}</div>
+                    <div class="message-content">${content}</div>
+                `;
+            }
+            
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            return messageDiv;
+        }
+        
+        // Convert CSV data to HTML table
+        function createTable(data, columns) {
+            let html = '<table><thead><tr>';
+            columns.forEach(col => {
+                html += `<th>${col}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+            
+            data.forEach(row => {
+                html += '<tr>';
+                columns.forEach(col => {
+                    html += `<td>${row[col] !== undefined ? row[col] : ''}</td>`;
+                });
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table>';
+            return html;
+        }
+        
+        function parseCSVTable(content) {
+            // Check if content contains a CSV table in markdown code block
+            const codeBlockRegex = /```\n([\s\S]*?)\n```/g;
+            const match = codeBlockRegex.exec(content);
+            
+            if (match && match[1]) {
+                const tableText = match[1].trim();
+                const lines = tableText.split('\n').filter(line => line.trim());
+                
+                if (lines.length > 1) {
+                    // Parse header
+                    const headers = lines[0].split(/\s{2,}/).map(h => h.trim()).filter(h => h);
+                    
+                    // Parse rows
+                    const rows = [];
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = lines[i].split(/\s{2,}/).map(v => v.trim()).filter(v => v);
+                        if (values.length > 0) {
+                            const row = {};
+                            headers.forEach((header, idx) => {
+                                row[header] = values[idx] || '';
+                            });
+                            rows.push(row);
+                        }
+                    }
+                    
+                    if (rows.length > 0) {
+                        return { headers, rows };
+                    }
+                }
+            }
+            return null;
+        }
+        
+        function createHRDataTable(headers, rows, title = "HR Data Results") {
+            const tableId = 'table_' + Date.now();
+            
+            let html = `
+                <div class="hr-data-container">
+                    <div class="hr-data-header">
+                        <div class="hr-data-title">${title}</div>
+                        <button class="export-btn" onclick="exportTableToCSV('${tableId}', 'finsolve_hr_data_${Date.now()}.csv')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Export CSV
+                        </button>
+                    </div>
+                    <div class="hr-table-wrapper">
+                        <table class="hr-data-table" id="${tableId}">
+                            <thead>
+                                <tr>
+                                    <th class="hr-row-number">#</th>`;
+            
+            headers.forEach(header => {
+                html += `<th>${header}</th>`;
+            });
+            
+            html += `</tr></thead><tbody>`;
+            
+            rows.forEach((row, idx) => {
+                html += `<tr><td class="hr-row-number">${idx + 1}</td>`;
+                headers.forEach(header => {
+                    const value = row[header] || '';
+                    const cellClass = header.toLowerCase().includes('salary') ? 'salary-cell' : '';
+                    html += `<td class="${cellClass}">${value}</td>`;
+                });
+                html += '</tr>';
+            });
+            
+            html += `</tbody></table></div></div>`;
+            return html;
+        }
+        
+        function exportTableToCSV(tableId, filename) {
+            const table = document.getElementById(tableId);
+            if (!table) return;
+            
+            let csv = [];
+            const rows = table.querySelectorAll('tr');
+            
+            for (let row of rows) {
+                let csvRow = [];
+                const cols = row.querySelectorAll('td, th');
+                
+                for (let col of cols) {
+                    // Skip the row number column
+                    if (!col.classList.contains('hr-row-number')) {
+                        let data = col.innerText.replace(/(\r\n|\n|\r)/gm, '').trim();
+                        data = data.replace(/"/g, '""');
+                        csvRow.push('"' + data + '"');
+                    }
+                }
+                csv.push(csvRow.join(','));
+            }
+            
+            const csvString = csv.join('\n');
+            const blob = new Blob([csvString], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('hidden', '');
+            a.setAttribute('href', url);
+            a.setAttribute('download', filename);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+        
+        // Send message
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const question = input.value.trim();
+            
+            if (!question || isProcessing) return;
+            
+            // Check if this is the first message (welcome state)
+            const chatMain = document.getElementById('chatMain');
+            const isWelcomeState = chatMain.classList.contains('welcome-state');
+            
+            if (isWelcomeState) {
+                // Remove welcome message
+                const welcomeMsg = document.getElementById('welcomeMessage');
+                if (welcomeMsg) {
+                    welcomeMsg.style.display = 'none';
+                }
+                
+                // Trigger animation
+                chatMain.classList.add('animating');
+                chatMain.classList.remove('welcome-state');
+                
+                // Remove animation class after animation completes
+                setTimeout(() => {
+                    chatMain.classList.remove('animating');
+                }, 500);
+            }
+            
+            isProcessing = true;
+            input.value = '';
+            document.getElementById('sendBtn').disabled = true;
+            
+            // Add user message
+            addMessage('user', question);
+            
+            // Track message in current conversation
+            currentMessages.push({
+                role: 'user',
+                content: question,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Create assistant message container
+            let assistantMessage = addMessage('assistant', '', 'thinking');
+            let assistantContent = '';
+            let thinkingDiv = null;
+            
+            try {
+                const response = await fetch(`${API_BASE}/query`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        question,
+                        conversation_id: conversationId
+                    })
+                });
+                
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                
+                while (true) {
+                    const {done, value} = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n').filter(line => line.trim());
+                    
+                    for (const line of lines) {
+                        try {
+                            const data = JSON.parse(line);
+                            
+                            if (data.type === 'start') {
+                                // Stream started - remove any thinking indicator
+                                if (thinkingDiv) {
+                                    thinkingDiv.remove();
+                                    thinkingDiv = null;
+                                }
+                                
+                            } else if (data.type === 'token') {
+                                // Handle token type from backend
+                                if (thinkingDiv) {
+                                    thinkingDiv.remove();
+                                    thinkingDiv = null;
+                                }
+                                assistantContent += data.content;
+                                
+                                // Check if we have a complete CSV table
+                                const tableData = parseCSVTable(assistantContent);
+                                if (tableData) {
+                                    // Extract title from content before the table
+                                    const beforeTable = assistantContent.split('```')[0];
+                                    const titleMatch = beforeTable.match(/###\s*[📊📈]\s*(.+)/);
+                                    const title = titleMatch ? titleMatch[1].trim() : "HR Data Results";
+                                    
+                                    // Render as beautiful table
+                                    const tableHtml = createHRDataTable(tableData.headers, tableData.rows, title);
+                                    
+                                    // Keep the content before the table and replace table with HTML version
+                                    const beforeTableContent = assistantContent.split('```')[0];
+                                    const afterTableContent = assistantContent.split('```').slice(2).join('```');
+                                    
+                                    assistantMessage.querySelector('.message-content').innerHTML = 
+                                        marked.parse(beforeTableContent) + tableHtml + marked.parse(afterTableContent);
+                                } else {
+                                    // Regular markdown rendering
+                                    assistantMessage.querySelector('.message-content').innerHTML = 
+                                        marked.parse(assistantContent);
+                                }
+                                
+                            } else if (data.type === 'thinking') {
+                                if (!thinkingDiv) {
+                                    thinkingDiv = document.createElement('div');
+                                    thinkingDiv.className = 'thinking';
+                                    assistantMessage.querySelector('.message-content').appendChild(thinkingDiv);
+                                }
+                                thinkingDiv.textContent = data.content;
+                                
+                            } else if (data.type === 'markdown_chunk') {
+                                if (thinkingDiv) {
+                                    thinkingDiv.remove();
+                                    thinkingDiv = null;
+                                }
+                                assistantContent += data.content;
+                                assistantMessage.querySelector('.message-content').innerHTML = 
+                                    marked.parse(assistantContent);
+                                
+                            } else if (data.type === 'csv') {
+                                if (thinkingDiv) {
+                                    thinkingDiv.remove();
+                                    thinkingDiv = null;
+                                }
+                                const tableHtml = `<h4>${data.status}</h4>` + 
+                                    createTable(data.data, data.columns);
+                                assistantMessage.querySelector('.message-content').innerHTML = tableHtml;
+                                
+                                // Track CSV message
+                                currentMessages.push({
+                                    role: 'assistant',
+                                    type: 'csv',
+                                    status: data.status,
+                                    data: data.data,
+                                    columns: data.columns,
+                                    timestamp: new Date().toISOString()
+                                });
+                                
+                            } else if (data.type === 'sources') {
+                                const sourcesHtml = `
+                                    <div class="sources">
+                                        <h4>📚 Sources</h4>
+                                        ${data.sources.map(s => 
+                                            `<div class="source-item">${s.id}. ${s.source} (${s.department})</div>`
+                                        ).join('')}
+                                    </div>
+                                `;
+                                assistantMessage.querySelector('.message-content').innerHTML += sourcesHtml;
+                                
+                            } else if (data.type === 'text') {
+                                if (thinkingDiv) {
+                                    thinkingDiv.remove();
+                                    thinkingDiv = null;
+                                }
+                                assistantMessage.querySelector('.message-content').innerHTML = 
+                                    marked.parse(data.content);
+                            }
+                            
+                        } catch (e) {
+                            console.error('Parse error:', e);
+                        }
+                    }
+                }
+                
+                // Track markdown message if we have content
+                if (assistantContent && !currentMessages.find(m => 
+                    m.role === 'assistant' && m.content === assistantContent
+                )) {
+                    currentMessages.push({
+                        role: 'assistant',
+                        content: assistantContent,
+                        timestamp: new Date().toISOString()
+                    });
+                }
+                
+                // Auto-save after response completes
+                await saveCurrentConversation();
+                
+            } catch (error) {
+                assistantMessage.querySelector('.message-content').innerHTML = 
+                    `<div class="error">Error: ${error.message}</div>`;
+                console.error('Query error:', error);
+            }
+            
+            isProcessing = false;
+            document.getElementById('sendBtn').disabled = false;
+            input.focus();
+        }
+        
+        // Show Add User Modal
+        function showAddUserModal() {
+            document.getElementById('addUserModal').classList.add('active');
+            document.getElementById('addUserForm').reset();
+            document.getElementById('addUserError').textContent = '';
+            document.getElementById('addUserSuccess').classList.remove('active');
+        }
+        
+        // Close Add User Modal
+        function closeAddUserModal() {
+            document.getElementById('addUserModal').classList.remove('active');
+        }
+        
+        // Handle Add User Form Submission
+        async function handleAddUser(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('newUserName').value.trim();
+            const email = document.getElementById('newUserEmail').value.trim();
+            const password = document.getElementById('newUserPassword').value;
+            const role = document.getElementById('newUserRole').value;
+            
+            const errorDiv = document.getElementById('addUserError');
+            const successDiv = document.getElementById('addUserSuccess');
+            const submitBtn = document.getElementById('addUserSubmitBtn');
+            
+            errorDiv.textContent = '';
+            successDiv.classList.remove('active');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Creating...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/users/add`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, email, password, role })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    errorDiv.textContent = data.error || 'Failed to create user';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '✅ Create User';
+                    return;
+                }
+                
+                // Success
+                successDiv.textContent = `✅ User "${data.user.name}" created successfully!`;
+                successDiv.classList.add('active');
+                document.getElementById('addUserForm').reset();
+                
+                setTimeout(() => {
+                    closeAddUserModal();
+                }, 2000);
+                
+            } catch (error) {
+                errorDiv.textContent = 'Connection error. Please try again.';
+                console.error('Add user error:', error);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '✅ Create User';
+            }
+        }
+        
+        // Close modal when clicking outside
+        document.getElementById('addUserModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAddUserModal();
+            }
+        });
+        
+        document.getElementById('profileModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeProfileModal();
+            }
+        });
+        
+        // Toggle profile menu
+        function toggleProfileMenu() {
+            const menu = document.getElementById('profileMenu');
+            menu.classList.toggle('active');
+        }
+        
+        // Close profile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('profileMenu');
+            const button = document.querySelector('.profile-button');
+            
+            if (!button.contains(e.target) && !menu.contains(e.target)) {
+                menu.classList.remove('active');
+            }
+        });
+        
+        // Show profile modal
+        function showProfileModal() {
+            if (!currentUser) return;
+            
+            document.getElementById('profileName').textContent = currentUser.name;
+            document.getElementById('profileEmail').textContent = currentUser.email;
+            document.getElementById('profileRole').textContent = currentUser.role;
+            document.getElementById('profileId').textContent = currentUser.id;
+            
+            document.getElementById('profileModal').classList.add('active');
+            toggleProfileMenu();
+        }
+        
+        // Close profile modal
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.remove('active');
+        }
+        
+        // Show Upload Document Modal
+        function showUploadDocModal() {
+            document.getElementById('uploadDocModal').classList.add('active');
+            document.getElementById('uploadDocForm').reset();
+            document.getElementById('uploadDocError').textContent = '';
+            document.getElementById('uploadDocSuccess').classList.remove('active');
+        }
+        
+        // Close Upload Document Modal
+        function closeUploadDocModal() {
+            document.getElementById('uploadDocModal').classList.remove('active');
+        }
+        
+        // Handle Upload Document Form Submission
+        async function handleUploadDoc(event) {
+            event.preventDefault();
+            
+            const department = document.getElementById('docDepartment').value;
+            const fileInput = document.getElementById('docFile');
+            const file = fileInput.files[0];
+            
+            const errorDiv = document.getElementById('uploadDocError');
+            const successDiv = document.getElementById('uploadDocSuccess');
+            const submitBtn = document.getElementById('uploadDocSubmitBtn');
+            
+            errorDiv.textContent = '';
+            successDiv.classList.remove('active');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Uploading...';
+            
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('department', department);
+                
+                const response = await fetch(`${API_BASE}/documents/upload`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    errorDiv.textContent = data.error || 'Failed to upload document';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '📤 Upload Document';
+                    return;
+                }
+                
+                // Success
+                successDiv.textContent = `✅ Document "${data.document.filename}" uploaded successfully! Created ${data.document.chunks_created} chunks.`;
+                successDiv.classList.add('active');
+                document.getElementById('uploadDocForm').reset();
+                
+                setTimeout(() => {
+                    closeUploadDocModal();
+                }, 2500);
+                
+            } catch (error) {
+                errorDiv.textContent = 'Connection error. Please try again.';
+                console.error('Upload document error:', error);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '📤 Upload Document';
+            }
+        }
+        
+        // Close modal when clicking outside
+        document.getElementById('uploadDocModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeUploadDocModal();
+            }
+        });
+        
+        // Initialize
+        loadDemoUsers();
+    </script>
+    
+    <!-- Marked.js for markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</body>
+</html>
