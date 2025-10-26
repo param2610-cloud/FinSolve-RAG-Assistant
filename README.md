@@ -1,7 +1,6 @@
-# DS-RPC-01 Flask RAG Application
+# FinSolve RAG Assistant — Role-based RAG chatbot for department-specific insights
 
-a modular flask-based rag (retrieval augmented generation) application with role-based access control and department-specific document retrieval.
-
+A Retrieval-Augmented Generation (RAG) prototype implementing Role-Based Access Control (RBAC) to deliver secure, role-specific insights to Finance, Marketing, HR, Engineering, C-Level, and Employees. Built with langchain ,chroma, Groq llm, flask.
 ## project structure
 
 ```
