@@ -12,4 +12,4 @@ wheels/
 *.lock
 resources/vectorstore
 .env
-.github/prompts
+.github/prompts/
