@@ -1,6 +1,62 @@
 # FinSolve RAG Assistant — Role-based RAG chatbot for department-specific insights
 
 A Retrieval-Augmented Generation (RAG) prototype implementing Role-Based Access Control (RBAC) to deliver secure, role-specific insights to Finance, Marketing, HR, Engineering, C-Level, and Employees. Built with langchain ,chroma, Groq llm, flask.
+
+## Technology Stack
+
+### Backend & Framework
+- **Flask 3.0**
+  - Serves as the main web framework handling HTTP requests and responses
+  - Implements RESTful API endpoints for authentication, chat, and document management
+  - Manages routing, middleware, and session handling
+  - Provides blueprint-based modular architecture for service separation
+
+### AI & Machine Learning
+- **LangChain**
+  - Orchestrates the RAG (Retrieval-Augmented Generation) pipeline
+  - Manages conversation memory and chat history context
+  - Chains together document retrieval and LLM response generation
+  - Handles prompt templates and context injection for role-based queries
+
+- **Groq LLM**
+  - Generates natural language responses based on retrieved context
+  - Processes user queries with streaming capabilities for real-time responses
+  - Provides fast inference for conversational AI interactions
+  - Interprets context from vector store to generate accurate, department-specific answers
+
+- **HuggingFace Embeddings**
+  - Converts text documents into high-dimensional vector representations
+  - Enables semantic similarity search across document collections
+  - Transforms user queries into embeddings for vector store matching
+  - Powers the semantic search functionality for relevant document retrieval
+
+### Database & Storage
+- **ChromaDB**
+  - Stores document embeddings in a vector database
+  - Performs similarity search to retrieve relevant documents based on query embeddings
+  - Implements metadata filtering for role-based access control
+  - Persists vectorized knowledge base for quick semantic retrieval
+  - Maintains separate collections for different departments
+
+### Natural Language Processing
+- **spaCy**
+  - Preprocesses and analyzes user queries for intent extraction
+  - Performs named entity recognition (NER) to identify key terms
+  - Tokenizes and lemmatizes text for better query understanding
+  - Enhances query processing with linguistic features
+
+### Frontend
+- **Vanilla JavaScript**
+  - Handles user interactions and dynamic UI updates
+  - Manages JWT authentication and token storage
+  - Implements streaming response rendering from NDJSON
+  - Controls conversation flow and message display
+
+- **Marked.js**
+  - Renders markdown-formatted responses from the chatbot
+  - Converts LLM-generated markdown into HTML for display
+  - Supports rich text formatting including code blocks, lists, and emphasis
+
 ## project structure
 
 ```
@@ -70,71 +126,63 @@ the application will run on `http://localhost:5000`
 ### production mode
 
 ```bash
-gunicorn -w 4 -b 0.0.0.0:5000 "app:create_app()"
-```
-
-## api endpoints
-
-### authentication
-
-- `POST /auth/login` - user login, returns jwt token
-
-### conversations
-
-- `GET /conversations` - list all conversations
-- `GET /conversations/<id>` - get specific conversation
-- `POST /conversations` - create new conversation
-- `DELETE /conversations/<id>` - delete conversation
-- `POST /conversations/<id>/save` - save conversation
-
-### chat
-
-- `POST /query` - send query and get streaming rag response
-- `GET /permissions` - get current user permissions
-
-### users
-
-- `GET /users` - get demo users list
-- `POST /users/add` - add new user (manager only)
-- `GET /users/permissions` - get role permissions
-
-### documents
-
-- `POST /documents/upload` - upload document (manager only)
-
-## default users
-
-| username | password | role |
-|----------|----------|------|
-| manager | manager123 | manager |
-| fin_user | finance123 | finance |
-| hr_user | hr123 | hr |
-| eng_user | eng123 | engineering |
-| mkt_user | marketing123 | marketing |
-
-## department access
-
-- **manager**: all departments
-- **finance**: finance, general
-- **hr**: hr, general
-- **engineering**: engineering, general
-- **marketing**: marketing, general
-
-## development notes
-
-- vector store is automatically initialized on first run
-- chat memories are stored in-memory (cleared on restart)
-- conversations are persisted to json files
-- documents must be .md or .txt format
 - streaming responses use ndjson format
 
-## technology stack
+## architecture
+## Technology Stack
 
-- **backend**: flask 3.0
-- **ai/ml**: langchain, groq llm, huggingface embeddings
-- **vector store**: chromadb
-- **nlp**: spacy
-- **frontend**: vanilla javascript with marked.js
+### Backend & Framework
+- **Flask 3.0**
+  - Serves as the main web framework handling HTTP requests and responses
+  - Implements RESTful API endpoints for authentication, chat, and document management
+  - Manages routing, middleware, and session handling
+  - Provides blueprint-based modular architecture for service separation
+
+### AI & Machine Learning
+- **LangChain**
+  - Orchestrates the RAG (Retrieval-Augmented Generation) pipeline
+  - Manages conversation memory and chat history context
+  - Chains together document retrieval and LLM response generation
+  - Handles prompt templates and context injection for role-based queries
+
+- **Groq LLM**
+  - Generates natural language responses based on retrieved context
+  - Processes user queries with streaming capabilities for real-time responses
+  - Provides fast inference for conversational AI interactions
+  - Interprets context from vector store to generate accurate, department-specific answers
+
+- **HuggingFace Embeddings**
+  - Converts text documents into high-dimensional vector representations
+  - Enables semantic similarity search across document collections
+  - Transforms user queries into embeddings for vector store matching
+  - Powers the semantic search functionality for relevant document retrieval
+
+### Database & Storage
+- **ChromaDB**
+  - Stores document embeddings in a vector database
+  - Performs similarity search to retrieve relevant documents based on query embeddings
+  - Implements metadata filtering for role-based access control
+  - Persists vectorized knowledge base for quick semantic retrieval
+  - Maintains separate collections for different departments
+
+### Natural Language Processing
+- **spaCy**
+  - Preprocesses and analyzes user queries for intent extraction
+  - Performs named entity recognition (NER) to identify key terms
+  - Tokenizes and lemmatizes text for better query understanding
+  - Enhances query processing with linguistic features
+
+### Frontend
+- **Vanilla JavaScript**
+  - Handles user interactions and dynamic UI updates
+  - Manages JWT authentication and token storage
+  - Implements streaming response rendering from NDJSON
+  - Controls conversation flow and message display
+
+- **Marked.js**
+  - Renders markdown-formatted responses from the chatbot
+  - Converts LLM-generated markdown into HTML for display
+  - Supports rich text formatting including code blocks, lists, and emphasis
 
 ## architecture
 
