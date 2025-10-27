@@ -11,6 +11,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from typing import Generator, List, Optional, Tuple
 import os
 import json
+import re
 from datetime import datetime
 from shutil import rmtree
 
@@ -22,6 +23,40 @@ embeddings = HuggingFaceEmbeddings(
 
 # vector store
 vector_store = None
+
+
+def sanitize_text(text: str) -> str:
+    """
+    Sanitize text to handle encoding issues and problematic characters
+    """
+    if not text:
+        return ""
+    
+    try:
+        # Remove null bytes
+        text = text.replace('\x00', '')
+        
+        # Remove other control characters except common whitespace
+        text = re.sub(r'[\x00-\x08\x0b-\x0c\x0e-\x1f\x7f-\x9f]', '', text)
+        
+        # Normalize unicode characters
+        text = text.encode('utf-8', errors='ignore').decode('utf-8', errors='ignore')
+        
+        # Replace multiple spaces with single space
+        text = re.sub(r'\s+', ' ', text)
+        
+        # Replace multiple newlines with double newline
+        text = re.sub(r'\n\s*\n\s*\n+', '\n\n', text)
+        
+        # Strip leading/trailing whitespace
+        text = text.strip()
+        
+    except Exception as e:
+        print(f"⚠️ Error sanitizing text: {e}")
+        # Return cleaned version even if error occurs
+        return text.encode('ascii', errors='ignore').decode('ascii')
+    
+    return text
 
 
 def load_documents_with_metadata():
@@ -37,13 +72,40 @@ def load_documents_with_metadata():
     
     for folder, dept in dept_mapping.items():
         if os.path.exists(folder):
-            loader = DirectoryLoader(folder, glob="**/*.md", show_progress=True)
-            docs = loader.load()
-            for doc in docs:
-                doc.metadata['department'] = dept
-                doc.metadata['source'] = doc.metadata.get('source', '').replace("\\", "/")
-                documents.append(doc)
+            try:
+                # Load markdown files from directory
+                for root, dirs, files in os.walk(folder):
+                    for file in files:
+                        if file.endswith('.md'):
+                            filepath = os.path.join(root, file)
+                            try:
+                                # Read file with explicit UTF-8 encoding and error handling
+                                with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+                                    content = f.read()
+                                
+                                # Sanitize content
+                                content = sanitize_text(content)
+                                
+                                if content:  # Only add if there's actual content
+                                    from langchain_core.documents import Document
+                                    doc = Document(
+                                        page_content=content,
+                                        metadata={
+                                            'department': dept,
+                                            'source': filepath.replace("\\", "/"),
+                                            'filename': file
+                                        }
+                                    )
+                                    documents.append(doc)
+                                    print(f"✓ Loaded: {file} from {dept}")
+                            except Exception as e:
+                                print(f"⚠️ Error loading {filepath}: {e}")
+                                continue
+            except Exception as e:
+                print(f"⚠️ Warning loading documents from {folder}: {e}")
+                continue
     
+    print(f"✓ Total documents loaded: {len(documents)}")
     return documents
 
 
@@ -251,13 +313,21 @@ def stream_rag_response(question: str, user_role: str, processed_query: dict, ch
             yield json.dumps({"type": "token", "content": f"{status}\n\n"}) + "\n"
             
             if hr_df is not None:
-                yield json.dumps({"type": "token", "content": "### 📊 HR Data Results\n\n"}) + "\n"
-                yield json.dumps({"type": "token", "content": f"```\n{hr_df.to_string(index=False)}\n```\n\n"}) + "\n"
+                yield json.dumps({"type": "token", "content": "### 📊 HR Data Res   ults\n\n"}) + "\n"
                 
-                # save to csv
-                output_file = f"hr_query_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-                hr_df.to_csv(output_file, index=False)
-                yield json.dumps({"type": "token", "content": f"✅ **Data exported to:** `{output_file}`\n\n"}) + "\n"
+                # send structured CSV payload so frontend can render a clean HTML table
+                try:
+                    records = hr_df.fillna('').to_dict(orient='records')
+                    columns = list(hr_df.columns)
+                    yield json.dumps({
+                        "type": "csv",
+                        "status": "HR Data Results",
+                        "data": records,
+                        "columns": columns
+                    }) + "\n"
+                except Exception:
+                    # fallback to plain text table if conversion fails
+                    yield json.dumps({"type": "token", "content": f"```\n{hr_df.to_string(index=False)}\n```\n\n"}) + "\n"
             
             yield json.dumps({"type": "done"}) + "\n"
             return

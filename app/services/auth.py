@@ -69,16 +69,29 @@ def require_auth(f):
     """decorator to require authentication"""
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        # Skip authentication for OPTIONS preflight requests
+        if request.method == 'OPTIONS':
+            return '', 204
+        
         auth_header = request.headers.get('Authorization')
         if not auth_header:
+            print(f"[AUTH] No authorization header found")
+            print(f"[AUTH] Headers: {dict(request.headers)}")
             return jsonify({"error": "no authorization header"}), 401
         
         try:
+            # Handle both "Bearer token" and "token" formats
             token = auth_header.split(" ")[1] if " " in auth_header else auth_header
+            print(f"[AUTH] Token received (first 20 chars): {token[:20]}...")
             payload = verify_token(token)
+            print(f"[AUTH] Token verified successfully for user ID: {payload.get('id')}")
             request.user = payload
             return f(*args, **kwargs)
+        except IndexError:
+            print(f"[AUTH] Invalid authorization header format: {auth_header}")
+            return jsonify({"error": "invalid authorization header format"}), 401
         except Exception as e:
+            print(f"[AUTH] Token verification failed: {str(e)}")
             return jsonify({"error": str(e)}), 401
     
     return decorated_function

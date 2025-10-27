@@ -12,8 +12,12 @@ def create_app():
                 static_folder='../resources/static',
                 template_folder='../resources/static')
     
-    # enable cors for api calls
-    CORS(app)
+    # enable cors for api calls with proper configuration
+    CORS(app, 
+         resources={r"/api/*": {"origins": "*"}},
+         allow_headers=["Content-Type", "Authorization"],
+         expose_headers=["X-Conversation-ID"],
+         supports_credentials=True)
     
     # load config
     app.config['SECRET_KEY'] = os.getenv("JWT_SECRET_KEY", "n5jlk3n45jk3n5kjn")

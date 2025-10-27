@@ -18,8 +18,6 @@ if __name__ == '__main__':
     debug = os.getenv('DEBUG', 'True').lower() == 'true'
     
     print(f"🚀 Starting FinSolve RAG Assistant...")
-    print(f"📍 Running on: http://0.0.0.0:{port}")
-    print(f"🌐 Network: http://192.168.0.158:{port}")
     
     app.run(
         host='0.0.0.0',

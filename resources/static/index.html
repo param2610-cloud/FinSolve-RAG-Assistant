@@ -977,7 +977,7 @@
     </div>
     
     <script>
-        let authToken = null;
+    let authToken = null;
         let currentUser = null;
         let conversationId = null;
         let isProcessing = false;
@@ -986,6 +986,14 @@
         
         const API_BASE = '/api';  // Use relative URL to work on any IP/hostname
         
+        // load persisted token if present
+        try {
+            const savedToken = localStorage.getItem('authToken');
+            if (savedToken) authToken = savedToken;
+        } catch (e) {
+            // ignore localStorage errors
+        }
+
         // Load demo users
         async function loadDemoUsers() {
             try {
@@ -1033,6 +1041,7 @@
                 
                 const data = await response.json();
                 authToken = data.token;
+                try { localStorage.setItem('authToken', authToken); } catch (e) {}
                 currentUser = data.user;
                 
                 // Show chat interface
@@ -1471,6 +1480,19 @@
             let thinkingDiv = null;
             
             try {
+                // Ensure we have auth token
+                if (!authToken) {
+                    assistantMessage.querySelector('.message-content').innerHTML = 
+                        `<div class="error">Please login first</div>`;
+                    return;
+                }
+
+                // show immediate thinking/loading indicator while waiting for response
+                thinkingDiv = document.createElement('div');
+                thinkingDiv.className = 'thinking';
+                thinkingDiv.textContent = 'Thinking...';
+                assistantMessage.querySelector('.message-content').appendChild(thinkingDiv);
+
                 const response = await fetch(`${API_BASE}/query`, {
                     method: 'POST',
                     headers: {
@@ -1483,19 +1505,48 @@
                     })
                 });
                 
+                // Check for authentication errors
+                if (response.status === 401) {
+                    assistantMessage.querySelector('.message-content').innerHTML = 
+                        `<div class="error">Session expired. Please login again.</div>`;
+                    authToken = null;
+                    localStorage.removeItem('authToken');
+                    // Redirect to login
+                    setTimeout(() => {
+                        logout();
+                    }, 2000);
+                    return;
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const reader = response.body.getReader();
                 const decoder = new TextDecoder();
+                let buffer = '';
                 
                 while (true) {
                     const {done, value} = await reader.read();
                     if (done) break;
                     
-                    const chunk = decoder.decode(value);
-                    const lines = chunk.split('\n').filter(line => line.trim());
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    
+                    // Keep the last incomplete line in buffer
+                    buffer = lines.pop() || '';
                     
                     for (const line of lines) {
+                        if (!line.trim()) continue;
+                        
                         try {
                             const data = JSON.parse(line);
+                            
+                            if (data.type === 'error') {
+                                assistantMessage.querySelector('.message-content').innerHTML = 
+                                    `<div class="error">Error: ${data.content}</div>`;
+                                continue;
+                            }
                             
                             if (data.type === 'start') {
                                 // Stream started - remove any thinking indicator
@@ -1592,8 +1643,23 @@
                             }
                             
                         } catch (e) {
-                            console.error('Parse error:', e);
+                            console.error('Parse error:', e, 'Line:', line);
+                            // Skip malformed JSON lines instead of breaking the stream
                         }
+                    }
+                }
+                
+                // Process any remaining buffer content
+                if (buffer.trim()) {
+                    try {
+                        const data = JSON.parse(buffer);
+                        if (data.type === 'token') {
+                            assistantContent += data.content;
+                            assistantMessage.querySelector('.message-content').innerHTML = 
+                                marked.parse(assistantContent);
+                        }
+                    } catch (e) {
+                        console.error('Parse error on final buffer:', e);
                     }
                 }
                 
@@ -1612,9 +1678,9 @@
                 await saveCurrentConversation();
                 
             } catch (error) {
+                console.error('Query error:', error);
                 assistantMessage.querySelector('.message-content').innerHTML = 
                     `<div class="error">Error: ${error.message}</div>`;
-                console.error('Query error:', error);
             }
             
             isProcessing = false;

@@ -44,16 +44,22 @@ def query_hr_data(question: str, user_role: str, processed_query: Dict) -> Tuple
         
         # salary queries with aggregation detection
         if "salary" in query_lower or "payroll" in query_lower or "compensation" in query_lower:
-            if intent["is_aggregation"]:
+            # check for aggregation keywords
+            if (intent["is_aggregation"] or 
+                any(word in query_lower for word in ["average", "mean", "avg", "median", "total", "sum", "statistics", "stats"])):
                 # calculate statistics
                 stats = {
-                    'Average Salary': [f"₹{HR_DATA['salary'].mean():,.2f}"],
-                    'Median Salary': [f"₹{HR_DATA['salary'].median():,.2f}"],
-                    'Min Salary': [f"₹{HR_DATA['salary'].min():,.2f}"],
-                    'Max Salary': [f"₹{HR_DATA['salary'].max():,.2f}"],
-                    'Total Employees': [len(HR_DATA)]
+                    'Metric': ['Average Salary', 'Median Salary', 'Min Salary', 'Max Salary', 'Total Employees'],
+                    'Value': [
+                        f"₹{HR_DATA['salary'].mean():,.2f}",
+                        f"₹{HR_DATA['salary'].median():,.2f}",
+                        f"₹{HR_DATA['salary'].min():,.2f}",
+                        f"₹{HR_DATA['salary'].max():,.2f}",
+                        str(len(HR_DATA))
+                    ]
                 }
                 result_df = pd.DataFrame(stats)
+                return "✅ Salary Statistics", result_df
             elif "highest" in query_lower or "top" in query_lower:
                 # extract number if specified
                 top_n = 10

@@ -70,10 +70,13 @@ def delete_conversation(user_id: int, conversation_id: str):
             json.dump(conversations, f, indent=2)
 
 
-@chat_bp.route('/conversations', methods=['GET'])
+@chat_bp.route('/conversations', methods=['GET', 'OPTIONS'])
 @require_auth
 def get_conversations():
     """get all conversations for user"""
+    if request.method == 'OPTIONS':
+        return '', 204
+    
     user_id = request.user['id']
     conversations = load_conversations(user_id)
     
@@ -98,10 +101,13 @@ def get_conversations():
     })
 
 
-@chat_bp.route('/conversations/<conversation_id>', methods=['GET'])
+@chat_bp.route('/conversations/<conversation_id>', methods=['GET', 'OPTIONS'])
 @require_auth
 def get_conversation(conversation_id):
     """get specific conversation"""
+    if request.method == 'OPTIONS':
+        return '', 204
+    
     user_id = request.user['id']
     conversations = load_conversations(user_id)
     
@@ -113,10 +119,13 @@ def get_conversation(conversation_id):
     })
 
 
-@chat_bp.route('/conversations/<conversation_id>', methods=['DELETE'])
+@chat_bp.route('/conversations/<conversation_id>', methods=['DELETE', 'OPTIONS'])
 @require_auth
 def delete_conversation_endpoint(conversation_id):
     """delete conversation"""
+    if request.method == 'OPTIONS':
+        return '', 204
+    
     user_id = request.user['id']
     delete_conversation(user_id, conversation_id)
     
@@ -127,10 +136,13 @@ def delete_conversation_endpoint(conversation_id):
     return jsonify({"message": "conversation deleted"})
 
 
-@chat_bp.route('/conversations', methods=['POST'])
+@chat_bp.route('/conversations', methods=['POST', 'OPTIONS'])
 @require_auth
 def create_conversation():
     """create new conversation"""
+    if request.method == 'OPTIONS':
+        return '', 204
+    
     from langchain_core.chat_history import InMemoryChatMessageHistory
     
     conversation_id = str(uuid.uuid4())
@@ -142,10 +154,13 @@ def create_conversation():
     })
 
 
-@chat_bp.route('/conversations/<conversation_id>/save', methods=['POST'])
+@chat_bp.route('/conversations/<conversation_id>/save', methods=['POST', 'OPTIONS'])
 @require_auth
 def save_conversation_endpoint(conversation_id):
     """save conversation history"""
+    if request.method == 'OPTIONS':
+        return '', 204
+    
     user_id = request.user['id']
     data = request.json
     messages = data.get('messages', [])
@@ -156,13 +171,21 @@ def save_conversation_endpoint(conversation_id):
     return jsonify({"message": "conversation saved"})
 
 
-@chat_bp.route('/query', methods=['POST'])
+@chat_bp.route('/query', methods=['POST', 'OPTIONS'])
 @require_auth
 def query():
     """main query endpoint with streaming response"""
-    from app.utils.rag_engine import stream_rag_response
-    from app.utils.query_processor import query_processor
-    from langchain_core.chat_history import InMemoryChatMessageHistory
+    # Handle preflight OPTIONS request
+    if request.method == 'OPTIONS':
+        return '', 204
+    
+    try:
+        from app.utils.rag_engine import stream_rag_response
+        from app.utils.query_processor import query_processor
+        from langchain_core.chat_history import InMemoryChatMessageHistory
+    except ImportError as e:
+        print(f"[QUERY] Import error: {str(e)}")
+        return jsonify({"error": f"Missing dependency: {str(e)}"}), 500
     
     data = request.json
     question = data.get('question')
@@ -190,21 +213,27 @@ def query():
             for chunk in stream_rag_response(question, user_role, processed_query, chat_memory):
                 yield chunk
         except Exception as e:
-            yield json.dumps({"type": "error", "content": f"error: {str(e)}"}) + "\\n"
+            print(f"[QUERY] Stream error: {str(e)}")
+            yield json.dumps({"type": "error", "content": f"error: {str(e)}"}) + "\n"
     
     return Response(
         stream_with_context(generate()),
         mimetype='application/x-ndjson',
         headers={
-            'X-Conversation-ID': conversation_id
+            'X-Conversation-ID': conversation_id,
+            'Cache-Control': 'no-cache',
+            'X-Accel-Buffering': 'no'
         }
     )
 
 
-@chat_bp.route('/permissions', methods=['GET'])
+@chat_bp.route('/permissions', methods=['GET', 'OPTIONS'])
 @require_auth
 def get_permissions():
     """get user permissions"""
+    if request.method == 'OPTIONS':
+        return '', 204
+    
     user_role = request.user['role']
     permissions = ROLE_PERMISSIONS.get(user_role, ["general"])
     

@@ -162,17 +162,249 @@
         "timestamp": "2025-10-26T14:25:02.881Z"
       },
       {
-        "role": "user",
         "content": "who got lowest salary in company?",
+        "role": "user",
         "timestamp": "2025-10-26T14:29:54.217Z"
       },
       {
-        "role": "assistant",
         "content": "## \ud83d\udd0d Query Analysis\n\n**Original Query:** who got lowest salary in company?\n\n**Detected Departments:** hr, general\n\n**Query Type:** Hr Data\n\n---\n\n\ud83d\udd0d **Querying HR Database...**\n\n\u2705 HR Data Retrieved\n\n### \ud83d\udcca HR Data Results\n\n```\nemployee_id        full_name                 role        department    salary\n FINEMP1095      Ananya Khan          QA Engineer Quality Assurance 305337.03\n FINEMP1009        Sai Gupta       Credit Officer           Finance 309717.04\n FINEMP1089      Aarav Joshi    Security Engineer        Technology 330010.27\n FINEMP1025    Krishna Reddy    Marketing Manager         Marketing 340969.05\n FINEMP1067   Shaurya Chopra   Compliance Officer        Compliance 368244.88\n FINEMP1008 Aadhya Chowdhury     Customer Support        Operations 370315.98\n FINEMP1080       Avni Reddy         Data Analyst              Data 400948.72\n FINEMP1037      Vihaan Garg        Sales Manager             Sales 403990.23\n FINEMP1030     Vihaan Reddy       Data Scientist              Data 436056.24\n FINEMP1019   Isha Chowdhury Relationship Manager             Sales 443210.71\n```\n\n\u2705 **Data exported to:** `hr_query_20251026_195954.csv`\n\n",
+        "role": "assistant",
         "timestamp": "2025-10-26T14:29:54.304Z"
+      },
+      {
+        "content": "what is the average salary we give to employees?",
+        "role": "user",
+        "timestamp": "2025-10-27T10:33:48.376Z"
+      },
+      {
+        "content": "what is the average salary we give to employees?",
+        "role": "user",
+        "timestamp": "2025-10-27T10:37:18.561Z"
+      },
+      {
+        "content": "what is the average salary we give to employees?",
+        "role": "user",
+        "timestamp": "2025-10-27T10:38:51.394Z"
+      },
+      {
+        "content": "what is the average salary we give to employees?",
+        "role": "user",
+        "timestamp": "2025-10-27T10:53:19.723Z"
+      },
+      {
+        "content": "## \ud83d\udd0d Query Analysis\n\n**Original Query:** what is the average salary we give to employees?\n\n**Detected Departments:** hr\n\n**Query Type:** Hr Data\n\n---\n\n\ud83d\udd0d **Querying HR Database...**\n\n\u2705 HR Data Retrieved\n\n### \ud83d\udcca HR Data Results\n\n```\nemployee_id        full_name                 role        department     salary\n FINEMP1000     Aadhya Patel        Sales Manager             Sales 1332478.37\n FINEMP1001   Isha Chowdhury       Credit Officer           Finance 1491158.23\n FINEMP1002  Sakshi Malhotra Relationship Manager             Sales 1448927.95\n FINEMP1003 Krishna Malhotra     Business Analyst          Business  519865.26\n FINEMP1004    Aadhya Saxena    Marketing Manager         Marketing 1922205.04\n FINEMP1005    Shaurya Joshi    Financial Analyst           Finance 1085205.18\n FINEMP1006      Sara Sharma          QA Engineer Quality Assurance  660681.91\n FINEMP1007     Prisha Mehta    Marketing Manager         Marketing 1149019.58\n FINEMP1008 Aadhya Chowdhury     Customer Support        Operations  370315.98\n FINEMP1009        Sai Gupta       Credit Officer           Finance  309717.04\n FINEMP1010 Vihaan Chowdhury           HR Manager                HR 1201969.11\n FINEMP1011       Sai Sharma     Business Analyst          Business 1129637.90\n FINEMP1012     Ishaan Patel    Security Engineer        Technology 1703783.22\n FINEMP1013  Prisha Banerjee    Security Engineer        Technology  759800.28\n FINEMP1014       Isha Desai     Treasury Analyst           Finance  467884.86\n FINEMP1015     Ananya Singh           HR Manager                HR 1074426.00\n FINEMP1016     Ananya Reddy Relationship Manager             Sales 1876390.13\n FINEMP1017    Prisha Saxena      DevOps Engineer        Technology  526736.68\n FINEMP1018     Vivaan Reddy   Compliance Officer        Compliance  480639.52\n FINEMP1019   Isha Chowdhury Relationship Manager             Sales  443210.71\n```\n\n\u2705 **Data exported to:** `hr_query_20251027_162326.csv`\n\n",
+        "role": "assistant",
+        "timestamp": "2025-10-27T10:53:26.887Z"
+      },
+      {
+        "role": "user",
+        "content": "what is the average salary we give to employees?",
+        "timestamp": "2025-10-27T11:11:02.560Z"
+      },
+      {
+        "role": "assistant",
+        "type": "csv",
+        "status": "HR Data Results",
+        "data": [
+          {
+            "employee_id": "FINEMP1000",
+            "full_name": "Aadhya Patel",
+            "role": "Sales Manager",
+            "department": "Sales",
+            "salary": 1332478.37
+          },
+          {
+            "employee_id": "FINEMP1001",
+            "full_name": "Isha Chowdhury",
+            "role": "Credit Officer",
+            "department": "Finance",
+            "salary": 1491158.23
+          },
+          {
+            "employee_id": "FINEMP1002",
+            "full_name": "Sakshi Malhotra",
+            "role": "Relationship Manager",
+            "department": "Sales",
+            "salary": 1448927.95
+          },
+          {
+            "employee_id": "FINEMP1003",
+            "full_name": "Krishna Malhotra",
+            "role": "Business Analyst",
+            "department": "Business",
+            "salary": 519865.26
+          },
+          {
+            "employee_id": "FINEMP1004",
+            "full_name": "Aadhya Saxena",
+            "role": "Marketing Manager",
+            "department": "Marketing",
+            "salary": 1922205.04
+          },
+          {
+            "employee_id": "FINEMP1005",
+            "full_name": "Shaurya Joshi",
+            "role": "Financial Analyst",
+            "department": "Finance",
+            "salary": 1085205.18
+          },
+          {
+            "employee_id": "FINEMP1006",
+            "full_name": "Sara Sharma",
+            "role": "QA Engineer",
+            "department": "Quality Assurance",
+            "salary": 660681.91
+          },
+          {
+            "employee_id": "FINEMP1007",
+            "full_name": "Prisha Mehta",
+            "role": "Marketing Manager",
+            "department": "Marketing",
+            "salary": 1149019.58
+          },
+          {
+            "employee_id": "FINEMP1008",
+            "full_name": "Aadhya Chowdhury",
+            "role": "Customer Support",
+            "department": "Operations",
+            "salary": 370315.98
+          },
+          {
+            "employee_id": "FINEMP1009",
+            "full_name": "Sai Gupta",
+            "role": "Credit Officer",
+            "department": "Finance",
+            "salary": 309717.04
+          },
+          {
+            "employee_id": "FINEMP1010",
+            "full_name": "Vihaan Chowdhury",
+            "role": "HR Manager",
+            "department": "HR",
+            "salary": 1201969.11
+          },
+          {
+            "employee_id": "FINEMP1011",
+            "full_name": "Sai Sharma",
+            "role": "Business Analyst",
+            "department": "Business",
+            "salary": 1129637.9
+          },
+          {
+            "employee_id": "FINEMP1012",
+            "full_name": "Ishaan Patel",
+            "role": "Security Engineer",
+            "department": "Technology",
+            "salary": 1703783.22
+          },
+          {
+            "employee_id": "FINEMP1013",
+            "full_name": "Prisha Banerjee",
+            "role": "Security Engineer",
+            "department": "Technology",
+            "salary": 759800.28
+          },
+          {
+            "employee_id": "FINEMP1014",
+            "full_name": "Isha Desai",
+            "role": "Treasury Analyst",
+            "department": "Finance",
+            "salary": 467884.86
+          },
+          {
+            "employee_id": "FINEMP1015",
+            "full_name": "Ananya Singh",
+            "role": "HR Manager",
+            "department": "HR",
+            "salary": 1074426
+          },
+          {
+            "employee_id": "FINEMP1016",
+            "full_name": "Ananya Reddy",
+            "role": "Relationship Manager",
+            "department": "Sales",
+            "salary": 1876390.13
+          },
+          {
+            "employee_id": "FINEMP1017",
+            "full_name": "Prisha Saxena",
+            "role": "DevOps Engineer",
+            "department": "Technology",
+            "salary": 526736.68
+          },
+          {
+            "employee_id": "FINEMP1018",
+            "full_name": "Vivaan Reddy",
+            "role": "Compliance Officer",
+            "department": "Compliance",
+            "salary": 480639.52
+          },
+          {
+            "employee_id": "FINEMP1019",
+            "full_name": "Isha Chowdhury",
+            "role": "Relationship Manager",
+            "department": "Sales",
+            "salary": 443210.71
+          }
+        ],
+        "columns": [
+          "employee_id",
+          "full_name",
+          "role",
+          "department",
+          "salary"
+        ],
+        "timestamp": "2025-10-27T11:11:04.689Z"
+      },
+      {
+        "role": "assistant",
+        "content": "## \ud83d\udd0d Query Analysis\n\n**Original Query:** what is the average salary we give to employees?\n\n**Detected Departments:** hr\n\n**Query Type:** Hr Data\n\n---\n\n\ud83d\udd0d **Querying HR Database...**\n\n\u2705 HR Data Retrieved\n\n### \ud83d\udcca HR Data Results\n\n**Average salary (all employees):** `997,702.65`\n\n",
+        "timestamp": "2025-10-27T11:11:04.690Z"
+      },
+      {
+        "role": "user",
+        "content": "what is the average salary we give to employees?",
+        "timestamp": "2025-10-27T11:15:02.664Z"
+      },
+      {
+        "role": "assistant",
+        "type": "csv",
+        "status": "HR Data Results",
+        "data": [
+          {
+            "Metric": "Average Salary",
+            "Value": "\u20b91,187,565.31"
+          },
+          {
+            "Metric": "Median Salary",
+            "Value": "\u20b91,260,504.37"
+          },
+          {
+            "Metric": "Min Salary",
+            "Value": "\u20b9305,337.03"
+          },
+          {
+            "Metric": "Max Salary",
+            "Value": "\u20b91,982,774.95"
+          },
+          {
+            "Metric": "Total Employees",
+            "Value": "100"
+          }
+        ],
+        "columns": [
+          "Metric",
+          "Value"
+        ],
+        "timestamp": "2025-10-27T11:15:25.829Z"
+      },
+      {
+        "role": "assistant",
+        "content": "## \ud83d\udd0d Query Analysis\n\n**Original Query:** what is the average salary we give to employees?\n\n**Detected Departments:** hr\n\n**Query Type:** Hr Data\n\n---\n\n\ud83d\udd0d **Querying HR Database...**\n\n\u2705 Salary Statistics\n\n### \ud83d\udcca HR Data Results\n\n",
+        "timestamp": "2025-10-27T11:15:25.830Z"
       }
     ],
-    "timestamp": "2025-10-26T19:59:54.307175",
-    "last_updated": "2025-10-26T19:59:54.307194"
+    "timestamp": "2025-10-27T16:45:25.839402",
+    "last_updated": "2025-10-27T16:45:25.839402"
   }
 }
