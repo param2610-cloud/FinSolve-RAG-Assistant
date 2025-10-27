@@ -118,7 +118,8 @@ GROQ_API_KEY=your_api_key_here
 ### development mode
 
 ```bash
-python app/main.py
+# From the project root directory
+python -m app.main
 ```
 
 the application will run on `http://localhost:5000`
