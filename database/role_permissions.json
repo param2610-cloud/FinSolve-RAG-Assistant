@@ -1,8 +1,0 @@
-{
-    "Manager": ["finance", "hr", "engineering", "marketing", "general"],
-    "Engineer": ["engineering", "general"],
-    "hr": ["hr", "general"],
-    "Marketing": ["marketing", "general"],
-    "Finance": ["finance", "general"],
-    "Employee": ["general"]
-}
